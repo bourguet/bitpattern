@@ -12,13 +12,18 @@
 % Run LaTeX on the file 'bitpattern.dtx' to get a manual.
 %
 % Comment out the |\OnlyDescription| command in the driver and run
-% LaTex on the file 'bitpattern.dtx' to get a manual including
+% LaTeX on the file 'bitpattern.dtx' to get a manual including
 % commented sources.
 %
 % This program is provided under the terms of the LaTeX Project
 % Public License distributed from CTAN archives in directory
 % macros/latex/base/lppl.txt.
 %
+% This program is hosted at
+% https://bitbucket.org/bourguet/bitpattern.  The prefered way to
+% report issues and to suggest improvements is with the issue tracker
+% there.
+
 %<*dtx>
 \ProvidesFile{bitpattern.dtx}
 %</dtx>
@@ -48,6 +53,7 @@
 \documentclass{ltxdoc}
 \RequirePackage[numberOncePerField,bigEndian,numberBitsAbove]%
         {bitpattern}
+\renewcommand\descriptionlabel[1]{\hspace{\labelsep}\texttt{#1}}
 \begin{document}
 \OnlyDescription
 \DocInput{bitpattern.dtx}
