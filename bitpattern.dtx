@@ -9,11 +9,9 @@
 % Run LaTeX on the file 'bitpattern.ins' to get a .sty to place in
 % your tex hierarchy.
 %
-% Run LaTeX on the file 'bitpattern.dtx' to get a manual.
-%
-% Comment out the |\OnlyDescription| command in the driver and run
-% LaTeX on the file 'bitpattern.dtx' to get a manual including
-% commented sources.
+% Run LaTeX on the file 'bitpattern.dtx' to get a manual.  If the
+% |\OnlyDescription| command is commented out, you get commented
+% sources in the manual, else you get only the user's manual part.
 %
 % This program is provided under the terms of the LaTeX Project
 % Public License distributed from CTAN archives in directory
@@ -36,22 +34,22 @@
 % \maketitle
 % \begin{abstract}
 %   The |bitpattern| package is designed to typeset bit patterns as
-%   they may appear in description of data format, hardware or
-%   protocols.  It covers thus more or less the same application
-%   domain as the package |register| and is somewhat related to
-%   |bytefield|.
+%   they may appear in description of data format, hardware registers
+%   or transmission protocols.  It covers thus more or less the same
+%   application domain as the package |register| and is somewhat
+%   related to |bytefield|.
 %   
 %   Comparared to |register| the formating is more compact, the
-%   syntax less verbose and |bitpattern| allows big endian and little
-%   endian bit numbering.  But |bitpattern| is less well adapted to
-%   the use of long names for the fields and has no provision for a
-%   reset value.
+%   syntax less verbose and |bitpattern| allows to choose between big
+%   endian and little endian bit numbering.  But |bitpattern| is less
+%   well adapted to the use of long names for the fields and has no
+%   provision for a reset value.
 % \end{abstract}
 %
 % \iffalse
 %<*driver>
 \documentclass{ltxdoc}
-\RequirePackage[numberOncePerField,bigEndian,numberBitsAbove]%
+\RequirePackage[numberFieldsOnce,bigEndian,numberBitsAbove]%
         {bitpattern}
 \renewcommand\descriptionlabel[1]{\hspace{\labelsep}\texttt{#1}}
 %\OnlyDescription
@@ -61,10 +59,15 @@
 %</driver>
 % \fi
 % \section{Examples}
-% We'll first use the instruction formats of the PDP-10 to describe
-% the features of bit patterns.  The PDP-10 was a word-adressable
-% 36-bit computer and the reason for which I've chosen it is that it
-% was the computer on which \TeX{} was first implemented.
+%
+% We'll the instruction formats of two processors to describe the
+% features of |bitpattern|, the DEC PDP-10 and the Intel 8080.
+%
+% The PDP-10 was a word-adressable 36-bit computer, something quite
+% strange to our eyes (it's most familiar feature is probably the
+% fact that it uses 2's complement) and the reason for which I've
+% chosen it is that it was the computer on which \TeX{} was first
+% implemented.
 %
 % The PDP-10 has two instruction formats, one used for most of the
 % instructions:
@@ -75,37 +78,59 @@
 %
 % \noindent\bitpattern[numberBitsBelow]{111}[3]{Dev}[7]{IOP}[3]IX[4]Y[18]/
 %
-% |bitpattern| allows to number all the bits:
+% As well at putting the bit numbers above or below the field
+% description, |bitpattern| allows to number all the bits:
 %
 % \noindent\bitpattern[numberAllBits]{Op}[9]{AC}[4]IX[4]Y[18]/
 %
 % \noindent or only at the start and end of a field:
 %
-% \noindent\bitpattern[numberBitsBelow,numberTwicePerField]{111}[3]{Dev}[7]{IOP}[3]IX[4]Y[18]/
+% \noindent\bitpattern[numberBitsBelow,numberFieldsTwice]{111}[3]{Dev}[7]{IOP}[3]IX[4]Y[18]/
 %
 % Having a long field like \emph{Y} here may take more place than
 % wanted.  |bitpattern| allows to reduce that:
 %
 % \noindent\bitpattern{Op}[9]{AC}[4]IX[4]Y[18][9]/
 %
+% Other ways to avoid overstepping in the margin include splitting
+% the pattern in two:
+%
+% \noindent\bitpattern[bitWidth=1.5em,numberAllBits]{Op}[9]{AC}[4]IX[4]/ \\
+% \hspace*{1pt plus 1filll}\bitpattern[numberBitsBelow,startBit=18,bitWidth=1.5em,numberAllBits] Y[18]/
+%
+% \noindent and reducing the width of the cells:
+%
+% {\centering\bitpattern[bitWidth=0.8em]{Op}[9]{AC}[4]IX[4]Y[18]/ \par}
+%
 % The PDP-10 numbered its bits in the big endian way.  That's not the
-% case of the 8080. The 8080 was an 8-bit computer.  Trying to pack
-% instructions in 8-bit forces to use a lot of formats.  One of them
-% was used for the move instruction, and let's take that opportunity
-% to start and compact the layout of the bit field by changing the
-% format of the bit numbers and the field descriptions:
+% case of the Intel 8080. The 8080 was an 8-bit computer.  Trying to
+% pack instructions in 8-bit forces to use a lot of formats.  One of
+% them was used for the move instruction, and let's take that
+% opportunity to start and compact the layout of the bit field by
+% changing the format of the bit numbers and the field descriptions:
 %
 % \renewcommand\bpFormatBitNumber[1]{{\tiny\ttfamily\emph{\strut#1}}}
 % \renewcommand\bpFormatField[1]{{\scriptsize\ttfamily\strut#1}}
-% \noindent\bitpattern[littleEndian,startBit=7,numberBitsBelow]{01}[2]{D}[3]{S}[3]/
+% {\centering\bitpattern[littleEndian,startBit=7,numberBitsBelow]{01}[2]{D}[3]{S}[3]/\par}
+%
+%
+% \bpSetTickHeight{1pt}
+% \newlength{\bpDocExampleHeight}
+% \settoheight{\bpDocExampleHeight}{{\scriptsize\ttfamily 0}}
+% \newcommand{\bpDocExampleStrut}{\rule{0pt}{\bpDocExampleHeight}}
+% \renewcommand\bpFormatField[1]{{\scriptsize\ttfamily\bpDocExampleStrut #1}}
 %
 % After that it is possible to still be more compact by removing the
-% numbers and reducing the height of the ticks. \bpSetTickHeight{1pt}
-% When that's done, you can put a bit pattern in a paragraph without
-% disturbing it too much, like this
+% numbers, reducing the height of the ticks and avoiding the provide
+% the space for ascender and descenders in the field name (obviously
+% that is possible only with convenient field names).  When that's
+% done, you can put a bit pattern in a paragraph without disturbing
+% it too much, like this
 % \bitpattern[noBitNumbers,littleEndian,startBit=7]{01}[2]{D}[3]{S}[3]/.
 % With some text afterwards to see how the next line is handled.  The
-% result seems quite readable.
+% result seems quite readable, remark for instance that the baseline
+% of the field description is aligned with the baseline of the line
+% in which it is included.
 %
 % \section{Interface}
 %
@@ -118,8 +143,8 @@
 % \cmd{\bitpattern}\oarg{format}\marg{name}\oarg{size}\oarg{width}\dots\verb+/+
 % \end{quote}
 %
-% The optional argument allowing to control how the formatting is
-% made:
+% The first optional argument allows to control how the formatting is
+% made and is the combination of the following keys:
 % \begin{description}
 % \item[littleEndian] indicates that bit numbering is little endian,
 %   that is the leftward bit has the biggest number;
@@ -130,9 +155,9 @@
 % \item[numberBitsBelow] indicates that the bit numbers should be put
 %   below the fields;
 % \item[noBitNumbers] indicates that there should be no bit numbers;
-% \item[numberOncePerField] indicates that the fields should have
+% \item[numberFieldsOnce] indicates that the fields should have
 %   only one bit number;
-% \item[numberTwicePerField] indicates that the fields should have
+% \item[numberFieldsTwice] indicates that the fields should have
 %   two bit numbers;
 % \item[numberAllBits] indicates that the fields shouldn't have a bit
 %   number indication;
@@ -144,17 +169,19 @@
 %   ticks marking the bits should be \emph{dimen}.
 % \end{description}
 %
-% After the optional arguments comes the description of the fields.
-% They are composed of the field names (which does not have to be
-% included in braces if it takes one character) followed by two
-% optional arguments giving the size of the field (1 if omitted) and
-% the width it should take (the same as its size).
+% After the optional argument comes the description of the
+% fields. Each field is described by its name as a mandatory argument
+% (which does not have to be included in braces if it takes one
+% character) followed by two optional arguments giving the size of
+% the field (1 if omitted) and the width it should take (the same as
+% its size if it is not specified).
 % 
 % Field descriptions are ended by a \verb+/+.
 %
 % \subsection{Package options}
 %
-% The package |bitpattern| accept some options:
+% The package |bitpattern| accept the following options which set up
+% the default values for the formatting controls:
 % \begin{description}
 % \item[littleEndian] indicates that the default for bit numbering is
 %   little endian, that is the leftward bit has the biggest number;
@@ -166,9 +193,9 @@
 %   should be put below the fields;
 % \item[noBitNumbers] indicates that by default there should be no
 %   bit numbers;
-% \item[numberOncePerField] indicates that by default the fields
+% \item[numberFieldsOnce] indicates that by default the fields
 %   should have only one bit number;
-% \item[numberTwicePerField] indicates that by default the fields
+% \item[numberFieldsTwice] indicates that by default the fields
 %   should have two bit numbers;
 % \item[numberAllBits] indicates that by default the fields shouldn't
 %   have a bit number indication.
@@ -191,10 +218,10 @@
 % \DescribeMacro{\bpNoBitNumbers} |\bpNoBitNumbers| changes the
 % default to having no numbering.
 %
-% \DescribeMacro{\bpNumberFieldOnce} |\bpNumberFieldOnce| changes the
+% \DescribeMacro{\bpNumberFieldsOnce} |\bpNumberFieldsOnce| changes the
 % default to having the numbering done once per field.
 %
-% \DescribeMacro{\bpNumberFieldTwice} |\bpNumberFieldTwice| changes
+% \DescribeMacro{\bpNumberFieldsTwice} |\bpNumberFieldsTwice| changes
 % the default to having the numbering done twice per field.
 %
 % \DescribeMacro{\bpNumberAllBits} |\bpNumberAllBits| changes the
@@ -239,7 +266,7 @@
 % \renewcommand\bpFormatBitNumber[1]{{\tiny\sffamily\strut #1}}
 % |bitpattern| was loaded by:
 % \begin{verbatim}
-%     \RequirePackage[numberOncePerField,bigEndian,numberBitsAbove]{bitpattern}
+%     \RequirePackage[numberFieldsOnce,bigEndian,numberBitsAbove]{bitpattern}
 % \end{verbatim}
 % \smallskip
 % \noindent\bitpattern{Op}[9]{AC}[4]IX[4]Y[18]/
@@ -260,16 +287,16 @@
 % \end{verbatim}
 %
 % \smallskip
-% \noindent\bitpattern[numberBitsBelow,numberTwicePerField]{111}[3]{Dev}[7]{IOP}[3]IX[4]Y[18]/
+% \noindent\bitpattern[numberBitsBelow,numberFieldsTwice]{111}[3]{Dev}[7]{IOP}[3]IX[4]Y[18]/
 % \begin{verbatim}
-%     \bitpattern[numberBitsBelow,numberTwicePerField]%
+%     \bitpattern[numberBitsBelow,numberFieldsTwice]%
 %            {111}[3]{Dev}[7]{IOP}[3]IX[4]Y[18]/
 % \end{verbatim}
 %
 % \smallskip
-% \noindent\bitpattern[numberBitsBelow,numberTwicePerField]111{Dev}[7]{IOP}[3]IX[4]Y[18]/
+% \noindent\bitpattern[numberBitsBelow,numberFieldsTwice]111{Dev}[7]{IOP}[3]IX[4]Y[18]/
 % \begin{verbatim}
-%     \bitpattern[numberBitsBelow,numberTwicePerField]%
+%     \bitpattern[numberBitsBelow,numberFieldsTwice]%
 %            111{Dev}[7]{IOP}[3]IX[4]Y[18]/
 % \end{verbatim}
 %
@@ -280,22 +307,54 @@
 % \end{verbatim}
 %
 % \smallskip
+% \noindent\bitpattern[bitWidth=1.5em,numberAllBits]{Op}[9]{AC}[4]IX[4]/ \\
+% \hspace*{1pt plus 1filll}\bitpattern[numberBitsBelow,startBit=18,bitWidth=1.5em,numberAllBits] Y[18]/
+%
+% This wasn't composed directly by as two bit patterns, using the
+% possibility of specifying a starting bit.  To put a nicer touch,
+% the width of the cells has been expanded (the default width had an
+% overlap so small that going into the margin is a better format),
+% and the numbering was put above the pattern for the first and below
+% for the second.
+% \begin{verbatim}
+% \noindent\bitpattern[bitWidth=1.5em,numberAllBits]{Op}[9]{AC}[4]IX[4]/ \\
+% \hspace*{1pt plus 1filll}
+%      \bitpattern[numberBitsBelow,startBit=18,bitWidth=1.5em,numberAllBits] Y[18]/
+% \end{verbatim}
+%
+% \smallskip
+% {\centering\bitpattern[bitWidth=0.8em]{Op}[9]{AC}[4]IX[4]Y[18]/ \par}
+% \begin{verbatim}
+% {\centering\bitpattern[bitWidth=0.8em]{Op}[9]{AC}[4]IX[4]Y[18]/ \par}
+% \end{verbatim}
+%
+% \smallskip
 % \renewcommand\bpFormatBitNumber[1]{{\tiny\ttfamily\emph{\strut#1}}}
 % \renewcommand\bpFormatField[1]{{\scriptsize\ttfamily\strut#1}}
-% \noindent\bitpattern[littleEndian,startBit=7,numberBitsBelow]{01}[2]{D}[3]{S}[3]/
+% {\centering\bitpattern[littleEndian,startBit=7,numberBitsBelow]{01}[2]{D}[3]{S}[3]/\par}
 % \begin{verbatim}
-%     \renewcommand\bpFormatBitNumber[1]{{\tiny\ttfamily\emph{\strut#1}}}
-%     \renewcommand\bpFormatField[1]{{\scriptsize\ttfamily\strut#1}}
-%     \bitpattern[littleEndian,startBit=7,numberBitsBelow]{01}[2]{D}[3]{S}[3]/
+% \renewcommand\bpFormatBitNumber[1]{{\tiny\ttfamily\emph{\strut#1}}}
+% \renewcommand\bpFormatField[1]{{\scriptsize\ttfamily\strut#1}}
+% {\centering\bitpattern[littleEndian,startBit=7,numberBitsBelow]{01}[2]{D}[3]{S}[3]/\par}
 % \end{verbatim}
 %
 % \smallskip
 % \bpSetTickHeight{1pt}
-% \bitpattern[noBitNumbers,littleEndian,startBit=7]{01}[2]{D}[3]{S}[3]/
+% \renewcommand\bpFormatField[1]{{\scriptsize\ttfamily\bpDocExampleStrut #1}}
+% {\centering\bitpattern[noBitNumbers,littleEndian,startBit=7]{01}[2]{D}[3]{S}[3]/\par}
+% This example was made to be as compact as possible. Expanding the
+% strut a little more vertically wouldn't be unwise.
 % \begin{verbatim}
 % \bpSetTickHeight{1pt}
-% \bitpattern[noBitNumbers,littleEndian,startBit=7]{01}[2]{D}[3]{S}[3]/
+% \newlength{\bpDocExampleHeight}
+% \settoheight{\bpDocExampleHeight}{\scriptsize\ttfamily 0}
+% \newcommand{\bpDocExampleStrut}{\rule{0pt}{\bpDocExampleHeight}}
+% \renewcommand\bpFormatBitNumber[1]{{\tiny\ttfamily\emph{\strut#1}}}
+% \renewcommand\bpFormatField[1]{{\scriptsize\ttfamily\bpDocExampleStrut #1}}
+% {\centering\bitpattern[noBitNumbers,littleEndian,startBit=7]{01}[2]{D}[3]{S}[3]/\par}
 % \end{verbatim}
+% Note that if you put a descender, the formatting is then disturbed:
+% {\centering\bitpattern[noBitNumbers,littleEndian,startBit=7]{01}[2]{D}[3]{p}[3]/\par}
 %
 % \smallskip
 % It is to be noted that usually one does not change the formatting
@@ -311,7 +370,7 @@
 %
 %    \begin{macrocode}
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{bitpattern}[2015/12/06 Compact bit pattern diagrams]
+\ProvidesPackage{bitpattern}[2015/12/07 Compact bit pattern diagrams]
 
 \RequirePackage{keyval}
 \RequirePackage{calc}
@@ -359,12 +418,12 @@
 \newcommand\bpNoBitNumbers
 {\bp@HasBitNumbersfalse}
 
-\newcommand\bpNumberFieldOnce
+\newcommand\bpNumberFieldsOnce
 {\bp@HasBitNumberstrue
   \bp@NumberFieldTwicefalse
   \bp@NumberAllBitsfalse}
 
-\newcommand\bpNumberFieldTwice
+\newcommand\bpNumberFieldsTwice
 {\bp@HasBitNumberstrue
   \bp@NumberFieldTwicetrue
   \bp@NumberAllBitsfalse}
@@ -389,8 +448,8 @@
 \define@key{bitpattern}{numberBitsAbove}[true]{\bpNumberBitsAbove}
 \define@key{bitpattern}{numberBitsBelow}[true]{\bpNumberBitsBelow}
 \define@key{bitpattern}{noBitNumbers}[true]{\bpNoBitNumbers}
-\define@key{bitpattern}{numberOncePerField}[true]{\bpNumberFieldOnce}
-\define@key{bitpattern}{numberTwicePerField}[true]{\bpNumberFieldTwice}
+\define@key{bitpattern}{numberFieldsOnce}[true]{\bpNumberFieldsOnce}
+\define@key{bitpattern}{numberFieldsTwice}[true]{\bpNumberFieldsTwice}
 \define@key{bitpattern}{numberAllBits}[true]{\bpNumberAllBits}
 
 \define@key{bitpattern}{startBit}{\bpStartAtBit{#1}}
@@ -405,8 +464,8 @@
 \DeclareOption{numberBitsAbove}{\bpNumberBitsAbove}
 \DeclareOption{numberBitsBelow}{\bpNumberBitsBelow}
 \DeclareOption{noBitNumbers}{\bpNoBitNumbers}
-\DeclareOption{numberOncePerField}{\bpNumberFieldOnce}
-\DeclareOption{numberTwicePerField}{\bpNumberFieldTwice}
+\DeclareOption{numberFieldsOnce}{\bpNumberFieldsOnce}
+\DeclareOption{numberFieldsTwice}{\bpNumberFieldsTwice}
 \DeclareOption{numberAllBits}{\bpNumberAllBits}
 %    \end{macrocode}
 % 
@@ -414,7 +473,7 @@
 %    \begin{macrocode}
 \bpLittleEndian
 \bpNumberBitsBelow
-\bpNumberFieldOnce
+\bpNumberFieldsOnce
 \AtEndOfPackage{\ifbp@NumberBitsBigEndian
   \bpStartAtBit{0}\else\bpStartAtBit{7}\fi}
 \bpSetBitWidth{1em}
@@ -552,19 +611,19 @@
 %    \end{macrocode}
 % The \cs{bitpattern} is easy, just parse the optional argument in a
 % group so that the changes are local and do some more intialization.
-% The hard work is delegated to \cs{bp@fieldIfPresent}.
+% The hard work is delegated to \cs{bp@FieldIfPresent}.
 %    \begin{macrocode}
 \newcommand{\bitpattern}[1][]{%
   \begingroup
     \setkeys{bitpattern}{#1}%
     \savebox{\bp@TickBox}[\bp@BitWidth]{\bp@Tick\hfill}%
     \bp@CurBit=\bp@StartBit%
-    \bp@fieldIfPresent}
+    \bp@FieldIfPresent}
 %    \end{macrocode}
-% \cs{bp@fieldIfPresent} checks if we are done and format a field if
+% \cs{bp@FieldIfPresent} checks if we are done and format a field if
 % not.
 %    \begin{macrocode}
-\newcommand{\bp@fieldIfPresent}{\@ifnextchar/{\bp@Done}{\bp@Field}}
+\newcommand{\bp@FieldIfPresent}{\@ifnextchar/{\bp@Done}{\bp@Field}}
 %    \end{macrocode}
 % \cs{bp@field} checks if there is an optional argument or call
 % \cs{bp@DoField}.
@@ -585,19 +644,19 @@
 %    \begin{macrocode}
 \def\bp@DoField[#1][#2][#3]%
 {\setlength{\bp@FieldWidth}{\bp@BitWidth * #3}%
-  \ifnum #2 > #3 \ifbp@NumberAllBits\bpNumberFieldTwice\fi\fi
+  \ifnum #2 > #3 \ifbp@NumberAllBits\bpNumberFieldsTwice\fi\fi
   \bp@vbox{t}{\bp@FieldWidth}{%
     \bp@vbox{b}{\bp@FieldWidth}{%
       \bp@MakeTopNumbers{#2}
       \makebox[\bp@FieldWidth][s]{\bp@RuleFill{#2}{#3}}
       \makebox[\bp@FieldWidth][s]{\bp@TicksFill{#2}{#3}}
       \makebox[\bp@FieldWidth][s]%
-        {\vrule width \bp@RuleWidth\hfil\bpFormatField{\strut#1}\hfil}}
+        {\vrule width \bp@RuleWidth\hfil\bpFormatField{#1}\hfil}}
     \makebox[\bp@FieldWidth][s]{\bp@TicksFill{#2}{#3}}
     \makebox[\bp@FieldWidth][s]{\bp@RuleFill{#2}{#3}}
     \bp@MakeBottomNumbers{#2}}%
   \advance\bp@CurBit\ifbp@NumberBitsBigEndian #2\else -#2\fi%
-  \bp@fieldIfPresent}
+  \bp@FieldIfPresent}
 %    \end{macrocode}
 % Finalize the pattern by putting a file vertical rule.
 %    \begin{macrocode}
@@ -607,7 +666,7 @@
       \makebox[\bp@RuleWidth]{\bp@RuleFill{0}{0}}  
       \makebox[\bp@RuleWidth]{\bp@Tick\hfill}
       \makebox[\bp@RuleWidth]%
-        {\vrule width \bp@RuleWidth\hfil\bpFormatField{\strut}\hfil}}
+        {\vrule width \bp@RuleWidth\hfil\bpFormatField{}\hfil}}
     \makebox[\bp@RuleWidth]{\bp@Tick\hfill}
     \makebox[\bp@RuleWidth]{\bp@RuleFill{0}{0}}
     \makebox[\bp@RuleWidth]{\hfill\bp@FormatBottomBit{}}}\endgroup}
@@ -623,4 +682,3 @@
 %%% Local Variables:
 %%% fill-column: 69
 %%% End:
-
