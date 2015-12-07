@@ -6,6 +6,8 @@ pdf-sources:
 	-rm ltxdoc.cfg
 	pdflatex bitpattern.dtx
 
+sty: bitpattern.sty
+
 ctan: pdf
 	mkdir bitpattern
 	cp README.md bitpattern
