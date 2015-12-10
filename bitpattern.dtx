@@ -43,7 +43,9 @@
 %   syntax less verbose and |bitpattern| allows to choose between big
 %   endian and little endian bit numbering.  But |bitpattern| is less
 %   well adapted to the use of long names for the fields and has no
-%   provision for a reset value.
+%   provision for a reset value. |bytefield| is more adequate to
+%   describe multi-word protocols, while |bitpattern| is more adapted
+%   to describe the intra-word structure of a single word.
 % \end{abstract}
 %
 % \iffalse
